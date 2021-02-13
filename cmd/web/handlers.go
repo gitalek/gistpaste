@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/gitalek/gistpaste/pkg/helpers"
+	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -11,7 +13,25 @@ func home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	w.Write([]byte("Hello from Gistpaste!"))
+
+	filepaths := []string{
+		"./ui/html/home.page.tmpl",
+		"./ui/html/base.layout.tmpl",
+	}
+
+	ts, err := template.ParseFiles(filepaths...)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	err = ts.Execute(w, nil)
+	if err != nil {
+		log.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }
 
 func showGist(w http.ResponseWriter, r *http.Request) {

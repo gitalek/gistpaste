@@ -1,0 +1,21 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{template "title" .}} - Gistpaste</title>
+</head>
+<body>
+<header>
+    <h1><a href="/">Gistpaste</a></h1>
+</header>
+<nav>
+    <a href="/">Home</a>
+</nav>
+<main>
+    {{template "main" .}}
+</main>
+
+</body>
+</html>
+{{end}}
