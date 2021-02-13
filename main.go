@@ -21,6 +21,12 @@ func showGist (w http.ResponseWriter, r *http.Request) {
 }
 
 func createGist (w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		statusCode := 405
+		w.WriteHeader(statusCode)
+		w.Write([]byte(http.StatusText(statusCode)))
+		return
+	}
     w.Write([]byte("Create a new gist..."))
 }
 
