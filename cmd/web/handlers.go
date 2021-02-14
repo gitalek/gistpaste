@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"github.com/gitalek/gistpaste/pkg/helpers"
 	"html/template"
-	"log"
 	"net/http"
 )
 
-func home(w http.ResponseWriter, r *http.Request) {
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
@@ -22,20 +21,20 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles(filepaths...)
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	err = ts.Execute(w, nil)
 	if err != nil {
-		log.Println(err.Error())
+		app.errorLog.Println(err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 }
 
-func showGist(w http.ResponseWriter, r *http.Request) {
+func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
 	p := r.URL.Query().Get("id")
 	id, err := helpers.ValidateParamId(p)
 	if err != nil {
@@ -46,7 +45,7 @@ func showGist(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Display a specific gist with ID %d", id)
 }
 
-func createGist(w http.ResponseWriter, r *http.Request) {
+func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		w.Header().Set("Allow", http.MethodPost)
 		statusCode := 405
