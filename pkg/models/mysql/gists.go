@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/gitalek/gistpaste/pkg/models"
 )
 
@@ -27,7 +28,21 @@ func (m GistModel) Insert(title, content, expires string) (int, error) {
 }
 
 func (m GistModel) Get(id string) (*models.Gist, error) {
-	return nil, nil
+	stmt := `SELECT id, title, content, created, expires FROM gists
+				WHERE expires > UTC_TIMESTAMP() AND id = ?`
+
+	row := m.DB.QueryRow(stmt, id)
+	g := new(models.Gist)
+	err := row.Scan(&g.ID, &g.Title, &g.Content, &g.Created, &g.Expires)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, models.ErrNoRecord
+		} else {
+			return nil, err
+		}
+	}
+
+	return g, nil
 }
 
 // latest method returns the 10 most recently created gits.
