@@ -1,0 +1,17 @@
+{{template "base" .}}
+
+{{define "title"}}Gist #{{.Gist.ID}}{{end}}
+
+{{define "main"}}
+<div class='snippet'>
+    <div class='metadata'>
+        <strong>{{.Gist.Title}}</strong>
+        <span>#{{.Gist.ID}}</span>
+    </div>
+    <pre><code>{{.Gist.Content}}</code></pre>
+    <div class='metadata'>
+        <time>Created: {{.Gist.Created}}</time>
+        <time>Expires: {{.Gist.Expires}}</time>
+    </div>
+</div>
+{{end}}
