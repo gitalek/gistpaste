@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gitalek/gistpaste/pkg/helpers"
 	"github.com/gitalek/gistpaste/pkg/models"
+	"html/template"
 	"net/http"
 )
 
@@ -62,7 +63,26 @@ func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	fmt.Fprintf(w, "%#v\n", g)
+
+	data := &templateData{Gist: g}
+
+	filepaths := []string{
+		"./ui/html/show.page.tmpl",
+		"./ui/html/base.layout.tmpl",
+		"./ui/html/footer.partial.tmpl",
+	}
+
+	ts, err := template.ParseFiles(filepaths...)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	err = ts.Execute(w, data)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 }
 
 func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
