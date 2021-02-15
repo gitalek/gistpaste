@@ -46,6 +46,28 @@ func (m *GistModel) Get(id string) (*models.Gist, error) {
 }
 
 // latest method returns the 10 most recently created gits.
-func (m *GistModel) latest() ([]*models.Gist, error) {
-	return nil, nil
+func (m *GistModel) Latest() ([]*models.Gist, error) {
+	stmt := `SELECT id, title, content, created, expires FROM gists
+				WHERE expires > UTC_TIMESTAMP() ORDER BY created DESC LIMIT 10`
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var gists []*models.Gist
+
+	for rows.Next() {
+		g := new(models.Gist)
+		err = rows.Scan(&g.ID, &g.Title, &g.Content, &g.Created, &g.Expires)
+		if err != nil {
+			return nil, err
+		}
+		gists = append(gists, g)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return gists, nil
 }
