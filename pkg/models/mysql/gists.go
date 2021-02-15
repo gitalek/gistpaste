@@ -10,7 +10,7 @@ type GistModel struct {
 	DB *sql.DB
 }
 
-func (m GistModel) Insert(title, content, expires string) (int, error) {
+func (m *GistModel) Insert(title, content, expires string) (int, error) {
 	stmt := `INSERT INTO gists (title, content, created, expires)
 				VALUES(?, ?, UTC_TIMESTAMP(), DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? DAY))`
 
@@ -27,7 +27,7 @@ func (m GistModel) Insert(title, content, expires string) (int, error) {
 	return int(id), nil
 }
 
-func (m GistModel) Get(id string) (*models.Gist, error) {
+func (m *GistModel) Get(id string) (*models.Gist, error) {
 	stmt := `SELECT id, title, content, created, expires FROM gists
 				WHERE expires > UTC_TIMESTAMP() AND id = ?`
 
@@ -46,6 +46,6 @@ func (m GistModel) Get(id string) (*models.Gist, error) {
 }
 
 // latest method returns the 10 most recently created gits.
-func (m GistModel) latest() ([]*models.Gist, error) {
+func (m *GistModel) latest() ([]*models.Gist, error) {
 	return nil, nil
 }

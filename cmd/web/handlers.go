@@ -1,8 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gitalek/gistpaste/pkg/helpers"
+	"github.com/gitalek/gistpaste/pkg/models"
 	"html/template"
 	"net/http"
 )
@@ -33,15 +35,25 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
-	p := r.URL.Query().Get("id")
+	id := r.URL.Query().Get("id")
 	// todo: app method for ValidateParamIde
-	id, err := helpers.ValidateParamId(p)
-	if err != nil {
-		w.WriteHeader(err.StatusCode)
-		w.Write([]byte(err.Error()))
+	errValid := helpers.ValidateParamId(id)
+	if errValid != nil {
+		w.WriteHeader(errValid.StatusCode)
+		w.Write([]byte(errValid.Error()))
 		return
 	}
-	fmt.Fprintf(w, "Display a specific gist with ID %d", id)
+
+	g, err := app.gists.Get(id)
+	if err != nil {
+		if errors.Is(err, models.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+		return
+	}
+	fmt.Fprintf(w, "%#v\n", g)
 }
 
 func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
