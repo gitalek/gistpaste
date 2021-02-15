@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"github.com/gitalek/gistpaste/pkg/models/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	gists    *mysql.GistModel
 }
 
 func main() {
@@ -37,6 +39,7 @@ func main() {
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infolog,
+		gists:    &mysql.GistModel{DB: db},
 	}
 
 	srv := &http.Server{
