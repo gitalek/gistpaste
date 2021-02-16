@@ -5,6 +5,7 @@ import (
 	"flag"
 	"github.com/gitalek/gistpaste/pkg/models/mysql"
 	_ "github.com/go-sql-driver/mysql"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -12,9 +13,10 @@ import (
 
 // application holds the application-wide deps
 type application struct {
-	errorLog *log.Logger
-	infoLog  *log.Logger
-	gists    *mysql.GistModel
+	errorLog      *log.Logger
+	infoLog       *log.Logger
+	gists         *mysql.GistModel
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -36,10 +38,16 @@ func main() {
 	}
 	defer db.Close()
 
+	templateCache, err := newTemplateCache("./ui/html/")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infolog,
-		gists:    &mysql.GistModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infolog,
+		gists:         &mysql.GistModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	srv := &http.Server{
