@@ -9,11 +9,6 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		app.notFound(w)
-		return
-	}
-
 	gists, err := app.gists.Latest()
 	if err != nil {
 		app.serverError(w, err)
@@ -26,7 +21,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get("id")
+	id := r.URL.Query().Get(":id")
 	// todo: app method for ValidateParamIde
 	errValid := helpers.ValidateParamId(id)
 	if errValid != nil {
@@ -49,13 +44,11 @@ func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "show.page.tmpl", data)
 }
 
-func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		app.clientError(w, http.StatusMethodNotAllowed)
-		return
-	}
+func (app *application) createGistForm(w http.ResponseWriter, r *http.Request)  {
+	w.Write([]byte("Create a new snippet..."))
+}
 
+func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
 	title := "O snail"
 	content := "O snail\nClimb Mount Fuji,\nBut slowly, slowly!\n\n– Kobayashi Issa"
 	expires := "7"
@@ -67,5 +60,5 @@ func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirect user to the relevant page for newly created gist.
-	http.Redirect(w, r, fmt.Sprintf("/gist?id=%d", id), http.StatusSeeOther)
+	http.Redirect(w, r, fmt.Sprintf("/gist/%d", id), http.StatusSeeOther)
 }

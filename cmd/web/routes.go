@@ -1,15 +1,19 @@
 package main
 
-import "net/http"
+import (
+	"github.com/bmizerany/pat"
+	"net/http"
+)
 
 func (app *application) routes() http.Handler {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/gist", app.showGist)
-	mux.HandleFunc("/gist/create", app.createGist)
+	mux := pat.New()
+	mux.Get("/", http.HandlerFunc(app.home))
+	mux.Get("/gist/create", http.HandlerFunc(app.createGistForm))
+	mux.Post("/gist/create", http.HandlerFunc(app.createGist))
+	mux.Get("/gist/:id", http.HandlerFunc(app.showGist))
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	mux.Get("/static/", http.StripPrefix("/static", fileServer))
 
 	mws := []middleware{
 		secureHeaders,
@@ -19,7 +23,7 @@ func (app *application) routes() http.Handler {
 	return wrapMux(mux, mws...)
 }
 
-func wrapMux(mux *http.ServeMux, mws ...middleware) http.Handler {
+func wrapMux(mux *pat.PatternServeMux, mws ...middleware) http.Handler {
 	var h http.Handler
 	h = mux
 	for _, mw := range mws {
