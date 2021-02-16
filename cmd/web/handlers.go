@@ -62,7 +62,10 @@ func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
 
 	errReport := validateGistFormParams(title, content, expires)
 	if len(errReport) > 0 {
-		fmt.Fprint(w, errReport)
+		app.render(w, r, "create.page.tmpl", &templateData{
+			FormErrors: errReport,
+			FormData: r.PostForm,
+		})
 		return
 	}
 
