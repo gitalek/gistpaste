@@ -11,5 +11,19 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	return secureHeaders(mux)
+	mws := []middleware{
+		secureHeaders,
+		app.logRequest,
+		app.recoverPanic,
+	}
+	return wrapMux(mux, mws...)
+}
+
+func wrapMux(mux *http.ServeMux, mws ...middleware) http.Handler {
+	var h http.Handler
+	h = mux
+	for _, mw := range mws {
+		h = mw(h)
+	}
+	return h
 }
