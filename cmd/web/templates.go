@@ -1,17 +1,16 @@
 package main
 
 import (
+	"github.com/gitalek/gistpaste/pkg/forms"
 	"github.com/gitalek/gistpaste/pkg/models"
 	"html/template"
-	"net/url"
 	"path/filepath"
 	"time"
 )
 
 type templateData struct {
 	CurrentYear int
-	FormData    url.Values
-	FormErrors  map[string]string
+	Form        *forms.Form
 	Gist        *models.Gist
 	Gists       []*models.Gist
 }
