@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gitalek/gistpaste/pkg/helpers"
 	"github.com/gitalek/gistpaste/pkg/models"
-	"html/template"
 	"net/http"
 )
 
@@ -21,25 +20,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+
 	data := &templateData{Gists: gists}
-
-	filepaths := []string{
-		"./ui/html/home.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	ts, err := template.ParseFiles(filepaths...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.Execute(w, data)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	app.render(w, r, "home.page.tmpl", data)
 }
 
 func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
@@ -63,24 +46,7 @@ func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := &templateData{Gist: g}
-
-	filepaths := []string{
-		"./ui/html/show.page.tmpl",
-		"./ui/html/base.layout.tmpl",
-		"./ui/html/footer.partial.tmpl",
-	}
-
-	ts, err := template.ParseFiles(filepaths...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	err = ts.Execute(w, data)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	app.render(w, r, "show.page.tmpl", data)
 }
 
 func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
