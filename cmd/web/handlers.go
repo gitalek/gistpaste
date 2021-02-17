@@ -15,14 +15,13 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 		return
 	}
-
 	data := &templateData{Gists: gists}
 	app.render(w, r, "home.page.tmpl", data)
 }
 
 func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get(":id")
-	// todo: app method for ValidateParamIde
+	// todo: app method for ValidateParamId
 	errValid := helpers.ValidateParamId(id)
 	if errValid != nil {
 		w.WriteHeader(errValid.StatusCode)
