@@ -2,38 +2,28 @@ package main
 
 import (
 	"github.com/bmizerany/pat"
+	"github.com/justinas/alice"
 	"net/http"
 )
 
 func (app *application) routes() http.Handler {
-	mux := pat.New()
-	mux.Get("/", app.session.Enable(http.HandlerFunc(app.home)))
-	mux.Get("/gist/create", app.session.Enable(app.requireAuthntication(http.HandlerFunc(app.createGistForm))))
-	mux.Post("/gist/create", app.session.Enable(app.requireAuthntication(http.HandlerFunc(app.createGist))))
-	mux.Get("/gist/:id", app.session.Enable(http.HandlerFunc(app.showGist)))
+	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
+	dynamicMiddleware := alice.New(app.session.Enable)
 
-	mux.Get("/user/signup", app.session.Enable(http.HandlerFunc(app.signupUserForm)))
-	mux.Post("/user/signup", app.session.Enable(http.HandlerFunc(app.signupUser)))
-	mux.Get("/user/login", app.session.Enable(http.HandlerFunc(app.loginUserForm)))
-	mux.Post("/user/login", app.session.Enable(http.HandlerFunc(app.loginUser)))
-	mux.Post("/user/logout", app.session.Enable(app.requireAuthntication(http.HandlerFunc(app.logoutUser))))
+	mux := pat.New()
+	mux.Get("/", dynamicMiddleware.ThenFunc(app.home))
+	mux.Get("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createGistForm))
+	mux.Post("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createGist))
+	mux.Get("/snippet/:id", dynamicMiddleware.ThenFunc(app.showGist))
+
+	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(app.signupUserForm))
+	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(app.signupUser))
+	mux.Get("/user/login", dynamicMiddleware.ThenFunc(app.loginUserForm))
+	mux.Post("/user/login", dynamicMiddleware.ThenFunc(app.loginUser))
+	mux.Post("/user/logout", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.logoutUser))
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Get("/static/", http.StripPrefix("/static", fileServer))
 
-	mws := []middleware{
-		secureHeaders,
-		app.logRequest,
-		app.recoverPanic,
-	}
-	return wrapMux(mux, mws...)
-}
-
-func wrapMux(mux *pat.PatternServeMux, mws ...middleware) http.Handler {
-	var h http.Handler
-	h = mux
-	for _, mw := range mws {
-		h = mw(h)
-	}
-	return h
+	return standardMiddleware.Then(mux)
 }
