@@ -12,9 +12,9 @@ func (app *application) routes() http.Handler {
 
 	mux := pat.New()
 	mux.Get("/", dynamicMiddleware.ThenFunc(app.home))
-	mux.Get("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createGistForm))
-	mux.Post("/snippet/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createGist))
-	mux.Get("/snippet/:id", dynamicMiddleware.ThenFunc(app.showGist))
+	mux.Get("/gist/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createGistForm))
+	mux.Post("/gist/create", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(app.createGist))
+	mux.Get("/gist/:id", dynamicMiddleware.ThenFunc(app.showGist))
 
 	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(app.signupUserForm))
 	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(app.signupUser))
