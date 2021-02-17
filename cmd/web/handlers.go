@@ -77,23 +77,41 @@ func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, fmt.Sprintf("/gist/%d", id), http.StatusSeeOther)
 }
 
-func (app *application) signupUserForm (w http.ResponseWriter, r *http.Request) {
+func (app *application) signupUserForm(w http.ResponseWriter, r *http.Request) {
 	data := &templateData{Form: forms.New(nil)}
 	app.render(w, r, "signup.page.tmpl", data)
 }
 
-func (app *application) signupUser (w http.ResponseWriter, r *http.Request) {
+func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("name", "email", "password")
+	form.MaxLength("name", 255)
+	form.MaxLength("email", 255)
+	form.MatchesPattern("email", forms.EmailRX)
+	form.MinLength("password", 10)
+
+	if !form.Valid() {
+		app.render(w, r, "signup.page.tmpl", &templateData{Form: form})
+		return
+	}
+
 	fmt.Fprintf(w, "Create a new user...")
 }
 
-func (app *application) loginUserForm (w http.ResponseWriter, r *http.Request) {
+func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Display the user login form...")
 }
 
-func (app *application) loginUser (w http.ResponseWriter, r *http.Request) {
+func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Authenticate and login the user...")
 }
 
-func (app *application) logoutUser (w http.ResponseWriter, r *http.Request) {
+func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Logout the user...")
 }
