@@ -16,7 +16,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	data := &templateData{Gists: gists}
 	app.render(w, r, "home.page.tmpl", data)
 }
@@ -45,7 +44,7 @@ func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "show.page.tmpl", data)
 }
 
-func (app *application) createGistForm(w http.ResponseWriter, r *http.Request)  {
+func (app *application) createGistForm(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "create.page.tmpl", &templateData{
 		Form: forms.New(nil),
 	})
@@ -72,6 +71,28 @@ func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	app.session.Put(r, "flash", "Gist successfully created!")
+
 	// Redirect user to the relevant page for newly created gist.
 	http.Redirect(w, r, fmt.Sprintf("/gist/%d", id), http.StatusSeeOther)
+}
+
+func (app *application) signupUserForm (w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "Display the user signup form...")
+}
+
+func (app *application) signupUser (w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Create a new user...")
+}
+
+func (app *application) loginUserForm (w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Display the user login form...")
+}
+
+func (app *application) loginUser (w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Authenticate and login the user...")
+}
+
+func (app *application) logoutUser (w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Logout the user...")
 }
