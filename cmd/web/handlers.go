@@ -78,7 +78,8 @@ func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) signupUserForm (w http.ResponseWriter, r *http.Request) {
-    fmt.Fprintf(w, "Display the user signup form...")
+	data := &templateData{Form: forms.New(nil)}
+	app.render(w, r, "signup.page.tmpl", data)
 }
 
 func (app *application) signupUser (w http.ResponseWriter, r *http.Request) {
