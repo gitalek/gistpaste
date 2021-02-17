@@ -57,6 +57,7 @@ func main() {
 	session.Lifetime = 12 * time.Hour
 	// set true to serve all request only over HTTPS
 	session.Secure = true
+	session.SameSite = http.SameSiteStrictMode
 
 	app := &application{
 		errorLog:      errorLog,
