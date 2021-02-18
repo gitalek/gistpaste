@@ -2,7 +2,6 @@ package main
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -56,17 +55,13 @@ func Test_ping(t *testing.T) {
 }
 
 func TestEndToEndPing(t *testing.T) {
-	app := &application{
-		errorLog: log.New(ioutil.Discard, "", 0),
-		infoLog:  log.New(ioutil.Discard, "", 0),
-	}
-
-	ts := httptest.NewTLSServer(app.routes())
+	app := newTestApplication(t)
+	ts := newTestServer(t, app.routes())
 	defer ts.Close()
 
 	type args struct {
 		route string
-		ts    *httptest.Server
+		ts    *testServer
 	}
 
 	type result struct {
@@ -87,17 +82,9 @@ func TestEndToEndPing(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rs, err := ts.Client().Get(tt.args.ts.URL + tt.args.route)
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer rs.Body.Close()
-			if rs.StatusCode != tt.want.statusCode {
-				t.Errorf("status code: want %d; got %d", tt.want.statusCode, rs.StatusCode)
-			}
-			body, err := ioutil.ReadAll(rs.Body)
-			if err != nil {
-				t.Fatal(err)
+			statusCode, _, body := tt.args.ts.get(t, tt.args.route)
+			if statusCode != tt.want.statusCode {
+				t.Errorf("status code: want %d; got %d", tt.want.statusCode, statusCode)
 			}
 			if b := string(body); b != tt.want.body {
 				t.Errorf("body: want %s; got %s", tt.want.body, b)
