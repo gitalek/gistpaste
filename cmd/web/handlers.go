@@ -20,9 +20,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get(":id")
+	par := r.URL.Query().Get(":id")
 	// todo: app method for ValidateParamId
-	errValid := helpers.ValidateParamId(id)
+	id, errValid := helpers.ValidateParamId(par)
 	if errValid != nil {
 		w.WriteHeader(errValid.StatusCode)
 		w.Write([]byte(errValid.Error()))
