@@ -14,6 +14,10 @@ import (
 	"time"
 )
 
+type contextKey string
+
+const contextKeyIsAuthenticated = contextKey("isAuthenticated")
+
 // application holds the application-wide deps
 type application struct {
 	errorLog      *log.Logger
