@@ -27,7 +27,7 @@ func newTestApplication(t *testing.T) *application {
 		infoLog: log.New(ioutil.Discard, "", 0),
 		session: session,
 		gists: &mock.GistModel{},
-		users: &mock.UserModel{}
+		users: &mock.UserModel{},
 		templateCache: templateCache,
 	}
 }
