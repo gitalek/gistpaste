@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"flag"
+	"github.com/gitalek/gistpaste/pkg/models"
 	"github.com/gitalek/gistpaste/pkg/models/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golangcollege/sessions"
@@ -21,11 +22,11 @@ const contextKeyIsAuthenticated = contextKey("isAuthenticated")
 // application holds the application-wide deps
 type application struct {
 	errorLog      *log.Logger
-	gists         *mysql.GistModel
+	gists         models.GistModelInterface
 	infoLog       *log.Logger
 	session       *sessions.Session
 	templateCache map[string]*template.Template
-	users         *mysql.UserModel
+	users         models.UserModelInterface
 }
 
 func main() {
