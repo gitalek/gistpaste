@@ -53,6 +53,7 @@ func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		app.clientError(w, http.StatusBadRequest)
+		return
 	}
 
 	form := forms.New(r.PostForm)
@@ -62,6 +63,7 @@ func (app *application) createGist(w http.ResponseWriter, r *http.Request) {
 
 	if !form.Valid() {
 		app.render(w, r, "create.page.tmpl", &templateData{Form: form})
+		return
 	}
 
 	id, err := app.gists.Insert(form.Get("title"), form.Get("content"), form.Get("expires"))
