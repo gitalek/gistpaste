@@ -20,9 +20,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) showGist(w http.ResponseWriter, r *http.Request) {
-	id := r.URL.Query().Get(":id")
+	par := r.URL.Query().Get(":id")
 	// todo: app method for ValidateParamId
-	errValid := helpers.ValidateParamId(id)
+	id, errValid := helpers.ValidateParamId(par)
 	if errValid != nil {
 		w.WriteHeader(errValid.StatusCode)
 		w.Write([]byte(errValid.Error()))
@@ -148,4 +148,8 @@ func (app *application) logoutUser(w http.ResponseWriter, r *http.Request) {
 	app.session.Remove(r, "authenticatedUserId")
 	app.session.Put(r, "flash", "You've been logged out successfully!")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func ping(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("OK"))
 }

@@ -28,3 +28,15 @@ type User struct {
 	Created        time.Time
 	Active         bool
 }
+
+type GistModelInterface interface {
+	Insert(string, string, string) (int, error)
+	Get(int) (*Gist, error)
+	Latest() ([]*Gist, error)
+}
+
+type UserModelInterface interface {
+	Insert(string, string, string) error
+	Authenticate(string, string) (int, error)
+	Get(int) (*User, error)
+}

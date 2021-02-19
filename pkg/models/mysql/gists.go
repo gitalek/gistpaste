@@ -27,7 +27,7 @@ func (m *GistModel) Insert(title, content, expires string) (int, error) {
 	return int(id), nil
 }
 
-func (m *GistModel) Get(id string) (*models.Gist, error) {
+func (m *GistModel) Get(id int) (*models.Gist, error) {
 	stmt := `SELECT id, title, content, created, expires FROM gists
 				WHERE expires > UTC_TIMESTAMP() AND id = ?`
 
