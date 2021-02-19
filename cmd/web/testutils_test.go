@@ -3,11 +3,13 @@ package main
 import (
 	"github.com/gitalek/gistpaste/pkg/models/mock"
 	"github.com/golangcollege/sessions"
+	"html"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
+	"regexp"
 	"testing"
 	"time"
 )
@@ -66,4 +68,15 @@ func (ts *testServer) get(t *testing.T, route string) (int, http.Header, []byte)
 	}
 
 	return rs.StatusCode, rs.Header, body
+}
+
+// csrfTokenRX regexp captures the CSRF token value from the HTML form
+var csrfTokenRX = regexp.MustCompile(`<input type='hidden' name='csrf_token' value='(.+)'>`)
+
+func extractCSRFToken(t *testing.T, body []byte) string {
+	matches := csrfTokenRX.FindSubmatch(body)
+	if len(matches) < 2 {
+		t.Fatal("no csrf token found in body")
+	}
+	return html.UnescapeString(string(matches[1]))
 }
