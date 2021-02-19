@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"net/http/httptest"
+	"net/url"
 	"regexp"
 	"testing"
 	"time"
@@ -57,6 +58,21 @@ func newTestServer(t *testing.T, h http.Handler) *testServer {
 
 func (ts *testServer) get(t *testing.T, route string) (int, http.Header, []byte) {
 	rs, err := ts.Client().Get(ts.URL + route)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rs.Body.Close()
+
+	body, err := ioutil.ReadAll(rs.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return rs.StatusCode, rs.Header, body
+}
+
+func (ts *testServer) postForm(t *testing.T, route string, form url.Values) (int, http.Header, []byte) {
+	rs, err := ts.Client().PostForm(ts.URL + route, form)
 	if err != nil {
 		t.Fatal(err)
 	}
